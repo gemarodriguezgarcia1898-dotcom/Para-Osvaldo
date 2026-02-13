@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>root@love:~# terminal</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --term-bg: #010409;
+            --term-green: #39ff14; 
+            --pixel-red: #ff7b72;
+            --tech-blue: #58a6ff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--term-green);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- CORAZONES EMOJI --- */
+        .falling-heart {
+            position: absolute;
+            top: -50px;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1;
+            user-select: none;
+            animation: fallAnimation linear forwards;
+        }
+
+        @keyframes fallAnimation {
+            0% { transform: translateY(0) rotate(0deg) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(10vh) scale(1); }
+            100% { transform: translateY(105vh) translateX(var(--drift)) rotate(var(--rotation)) scale(1.2); opacity: 0.2; }
+        }
+
+        /* --- VENTANA TERMINAL --- */
+        .terminal-window {
+            background: var(--term-bg);
+            border: 1px solid #30363d;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-radius: 6px;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .bar {
+            background: #161b22;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .content { padding: 25px; }
+
+        .counter-box {
+            border: 2px solid var(--term-green);
+            margin: 30px 0;
+            padding: 25px 15px;
+            text-align: center;
+            background: rgba(57, 255, 20, 0.02);
+            position: relative;
+        }
+
+        .counter-label {
+            position: absolute; top: -12px; left: 15px;
+            background: var(--term-bg); padding: 0 10px; font-size: 0.8rem;
+            color: var(--term-green); font-weight: bold;
+        }
+
+        #contador { font-size: 1.8rem; font-weight: bold; text-shadow: 0 0 10px var(--term-green); }
+
+        .cmd-btn {
+            background: transparent; border: 1px solid var(--term-green);
+            color: var(--term-green); padding: 12px; width: 100%;
+            margin-bottom: 15px; cursor: pointer; font-family: inherit;
+            text-align: left; transition: 0.3s;
+        }
+        .cmd-btn:hover { background: rgba(57, 255, 20, 0.1); }
+
+        /* --- SECCIÓN DE FECHAS (MILESTONES) --- */
+        .milestones { font-size: 0.8rem; color: #8b949e; margin-top: 25px; border-top: 1px solid #30363d; padding-top: 15px; }
+        .date { color: var(--pixel-red); font-weight: bold; }
+
+        /* --- MODAL DE LA CARTA --- */
+        #modalCarta {
+            display: none; 
+            position: fixed; 
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%; max-width: 700px;
+            background: var(--term-bg);
+            border: 2px solid var(--pixel-red);
+            z-index: 9999; 
+            box-shadow: 0 0 50px rgba(255, 123, 114, 0.3);
+        }
+
+        .carta-text {
+            padding: 20px; color: #e6edf3; font-size: 0.95rem;
+            line-height: 1.7; max-height: 60vh; overflow-y: auto;
+            text-align: justify;
+        }
+
+        .cursor { display: inline-block; width: 10px; height: 18px; background: var(--term-green); animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body onclick="burstHearts(event)">
+
+    <div class="terminal-window">
+        <div class="bar">
+            <span>LEVEL 2 UNLOCKED: Still in love with you</span>
+            <span style="color: #8b949e;">● ● ●</span>
+        </div>
+        <div class="content">
+            <div id="typewriter" style="font-weight: bold; margin-bottom: 10px;"></div>
+            
+            <div class="counter-box">
+                <span class="counter-label">UPTIME</span>
+                <div id="contador">00D 00H 00M 00S</div>
+            </div>
+
+            <button class="cmd-btn" onclick="toggleMusic(event)">$ ./play_bgm --audio="waiting_for_us.mp3"</button>
+            <button class="cmd-btn" onclick="openCarta(event)">$ chmod 777 letter.txt && cat letter.txt</button>
+
+            <div class="milestones">
+                <div><span class="date">14-02-25</span> // Initial contact @ San Valentine</div>
+                <div><span class="date">30-03-25</span> // First Beta Version</div>
+                <div><span class="date">27-04-25</span> // Anniversary.exe initialized</div>
+            </div>
+
+            <div style="margin-top: 20px;">root@heart:~# <span class="cursor"></span></div>
+        </div>
+    </div>
+
+    <div id="modalCarta">
+        <div class="bar" style="border-bottom: 1px solid var(--pixel-red);">
+            <span style="color: var(--pixel-red);">File:/home/osvaldo/documents/letter.txt (Mod: Feb 14, 2026)</span>
+            <span onclick="event.stopPropagation(); closeCarta()" 
+                  style="cursor:pointer; color: var(--pixel-red); font-weight: bold;">
+                  [ ESC ]
+            </span>
+        </div>
+        <div class="carta-text">
+            No recuerdo el segundo exacto en que llegaste a la oficina, pero nunca olvidaré aquel 14 de febrero: vi tu sonrisa por primera vez y supe que era la más hermosa que había visto en años.
+            <br><br>
+            Aún sonrío pensando en mis nervios intentando acercarme; como aquella vez que te pedí revisar mi computadora solo para poder hablar contigo, y terminé quedando como una mensa porque solo era una mala conexión... el fallo técnico más lindo de mi vida.
+            <br><br>
+            Nuestra primera cita pasó volando, 5 horas que se sintieron como un instante. Todavía te veo cruzando la calle al llegar. Luego vinieron los taquitos, nuestra primera vez tomados de la mano y esa sensación de tranquilidad que no me ha dejado desde entonces. Gracias por hacer de cada momento el mejor de mi historia.
+            <br><br>
+            Lloro de felicidad porque me siento la persona más amada del mundo. Quizás este San Valentín no es en nuestro departamento propio aún, pero sé que nuestro próximo 'release' será ahí. Eres mi hogar.
+        </div>
+    </div>
+
+    <audio id="miMusica" loop>
+        <source src="Waiting For Us Music Box Version (Lullaby Ver.).mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        /* * ===========================================================
+         * AUTHOR: Tu compañera de vida & código
+         * PROJECT: Project_Love_v2.exe
+         * STATUS: Running perfectly since 14-02-2025
+         * ===========================================================
+         * NOTE: while(alive) { heart.beat_for(Osvaldo); }
+         * ===========================================================
+         */
+
+        function createHeart(x = null, y = null) {
+            const heart = document.createElement('div');
+            heart.className = 'falling-heart';
+            heart.innerHTML = '❤️';
+            const startX = x !== null ? x : Math.random() * window.innerWidth;
+            heart.style.left = startX + "px";
+            if(y !== null) heart.style.top = y + "px";
+            heart.style.setProperty('--drift', (Math.random() * 200 - 100) + "px");
+            heart.style.setProperty('--rotation', Math.random() * 360 + "deg");
+            heart.style.animationDuration = (Math.random() * 3 + 4) + "s";
+            document.body.appendChild(heart);
+            heart.addEventListener('animationend', () => heart.remove());
+        }
+
+        function burstHearts(e) {
+            if (document.getElementById("modalCarta").style.display === "block") return;
+            if (e.target.tagName === 'BUTTON') return;
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => createHeart(e.clientX, e.clientY), i * 50);
+            }
+        }
+
+        function openCarta(e) { 
+            if(e) e.stopPropagation();
+            document.getElementById("modalCarta").style.display = "block"; 
+        }
+
+        function closeCarta() { 
+            document.getElementById("modalCarta").style.display = "none"; 
+        }
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === "Escape") closeCarta();
+        });
+
+        const fechaInicio = new Date(2025, 1, 14, 0, 0, 0); 
+        function actualizarContador() {
+            const ahora = new Date();
+            const diff = ahora.getTime() - fechaInicio.getTime();
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById("contador").innerHTML = `${d}D ${h<10?'0'+h:h}H ${m<10?'0'+m:m}M ${s<10?'0'+s:s}S`;
+        }
+
+        function toggleMusic(e) { 
+            e.stopPropagation(); 
+            const m = document.getElementById("miMusica"); 
+            m.paused ? m.play() : m.pause(); 
+        }
+
+        window.onload = () => {
+            let i = 0, txt = 'while(alive): heart.beat_for(you) ❤️';
+            function type() { if(i < txt.length) { document.getElementById("typewriter").innerHTML += txt.charAt(i); i++; setTimeout(type, 100); } }
+            type();
+            setInterval(actualizarContador, 1000);
+            actualizarContador();
+            setInterval(() => createHeart(), 600);
+        };
+    </script>
+</body>
+</html>
